@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sort 3 Spelling Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: one centered play column. Home = word board + five game buttons. Games = progress bar, prompt, answer area, feedback bar. */
+:root{
+  --bg:#eef3fb; --surface:#ffffff; --ink:#132043; --muted:#5b6788; --line:#d5dded;
+  --accent:#2f5bea; --accent-ink:#ffffff; --gold:#f5a800; --good:#178a4c; --good-bg:#dff5e8; --bad:#c62f3d; --bad-bg:#fde3e5;
+  --tile:#e3ebfd; --shadow:0 2px 0 rgba(19,32,67,.12);
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif; --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1730; --surface:#18234a; --ink:#eaf0ff; --muted:#a1aed3; --line:#2c3a6b;
+  --accent:#7d9bff; --accent-ink:#0f1730; --gold:#ffc23d; --good:#5fd394; --good-bg:#12382a; --bad:#ff8892; --bad-bg:#3d1b24;
+  --tile:#25336a; --shadow:0 2px 0 rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1730; --surface:#18234a; --ink:#eaf0ff; --muted:#a1aed3; --line:#2c3a6b;
+  --accent:#7d9bff; --accent-ink:#0f1730; --gold:#ffc23d; --good:#5fd394; --good-bg:#12382a; --bad:#ff8892; --bad-bg:#3d1b24;
+  --tile:#25336a; --shadow:0 2px 0 rgba(0,0,0,.4); color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.45;padding-inline:16px;padding-block:20px 40px}
+main{max-width:720px;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance;font-weight:600}
+h1{font-size:2rem} h2{font-size:1.4rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.tag{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:18px}
+.words{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.w{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--tile);border-radius:12px;padding:10px 14px;border:0;text-align:left;min-width:0}
+.w b{font-family:var(--display);font-weight:600;font-size:1.1rem;overflow-wrap:anywhere}
+.stars{color:var(--gold);letter-spacing:1px;white-space:nowrap;font-size:1rem}
+.stars i{font-style:normal;color:var(--line)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.mode{background:var(--accent);color:var(--accent-ink);border:0;border-radius:16px;padding:16px;text-align:left;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
+.mode strong{font-family:var(--display);font-size:1.25rem;font-weight:600}
+.mode span{font-size:.92rem;font-weight:700;opacity:.92}
+.mode:active{transform:translateY(2px)}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:12px 20px;font-weight:800;box-shadow:var(--shadow)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;flex:1;min-width:100px}
+.bar>div{height:100%;background:var(--gold);transition:width .3s}
+.prompt{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.sentence{font-size:1.05rem;color:var(--muted);margin:0}
+.big{font-family:var(--display);font-size:clamp(2rem,9vw,3.2rem);font-weight:600;letter-spacing:.02em;overflow-wrap:anywhere}
+.syl{font-family:var(--display);font-size:1.4rem;color:var(--accent);letter-spacing:.06em}
+.slots{display:flex;flex-wrap:wrap;gap:6px}
+.slot{width:clamp(28px,7.8vw,46px);height:clamp(38px,10vw,56px);border-radius:10px;border:2px dashed var(--line);background:var(--surface);display:grid;place-items:center;font-family:var(--display);font-size:clamp(1.2rem,5vw,1.8rem);font-weight:600;padding:0}
+.slot.fixed{background:var(--tile);border:2px solid var(--tile)}
+.slot.filled{border:2px solid var(--accent);background:var(--tile)}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.tile{width:clamp(40px,10vw,52px);height:clamp(44px,11vw,56px);border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-size:1.5rem;font-weight:600;box-shadow:var(--shadow);padding:0}
+.tile:disabled{opacity:.25;box-shadow:none}
+input.type{width:100%;font-family:var(--display);font-size:1.7rem;font-weight:600;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);letter-spacing:.06em}
+.fb{border-radius:14px;padding:12px 16px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.fb.good{background:var(--good-bg);color:var(--good)} .fb.bad{background:var(--bad-bg);color:var(--bad)} .fb.info{background:var(--tile);color:var(--ink)}
+.fb .word{font-family:var(--display);letter-spacing:.06em}
+.choices{display:flex;gap:12px;flex-wrap:wrap}
+.choices .btn{font-family:var(--display);font-size:1.5rem;min-width:130px}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.spk{display:inline-flex;align-items:center;gap:8px}
+.score{font-family:var(--display);font-size:3rem;font-weight:700;color:var(--accent)}
+.miss{color:var(--bad);font-weight:800}
+.hit{color:var(--good);font-weight:800}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.bar>div{transition:none}}
+</style>
+</head>
+<body>
+
+
+<main id="app"></main>
+
+<script>
+var WORDS=[
+ {w:"courageous",s:"cou-ra-geous",x:"The courageous firefighter ran back into the building."},
+ {w:"marvelous",s:"mar-vel-ous",x:"We saw a marvelous rainbow after the storm."},
+ {w:"humorous",s:"hu-mor-ous",x:"My dad told a humorous story at dinner."},
+ {w:"rebellious",s:"re-bel-lious",x:"The rebellious cat refused to stay off the table."},
+ {w:"delightful",s:"de-light-ful",x:"The picnic in the park was delightful."},
+ {w:"furious",s:"fu-ri-ous",x:"She was furious when her tower got knocked over."},
+ {w:"studious",s:"stu-di-ous",x:"The studious student read every night."},
+ {w:"nervous",s:"ner-vous",x:"I felt nervous before my big test."},
+ {w:"successful",s:"suc-cess-ful",x:"Their science project was successful."},
+ {w:"outrageous",s:"out-ra-geous",x:"The price of that toy is outrageous!"},
+ {w:"than",s:"than",x:"My brother is taller than me."},
+ {w:"then",s:"then",x:"First we eat lunch, then we go outside."}
+];
+var TT=[
+ ["I would rather read ___ watch TV.","than"],["First we brush our teeth, ___ we go to bed.","then"],
+ ["A cheetah is faster ___ a horse.","than"],["Mix the flour and eggs, ___ add the milk.","then"],
+ ["This book is funnier ___ that one.","than"],["We finished dinner, and ___ we had dessert.","then"],
+ ["She is braver ___ she thinks.","than"],["If it rains, ___ we will stay inside.","then"],
+ ["My backpack is heavier ___ yours.","than"],["Wait until the bell rings, ___ line up.","then"]
+];
+var MODES={
+ listen:{name:"Listen and Spell",desc:"Hear the word, then type it."},
+ gaps:{name:"Missing Letters",desc:"Tap the letters that fill the gaps."},
+ scramble:{name:"Unscramble",desc:"Put the mixed-up letters in order."},
+ thenthan:{name:"Than or Then",desc:"Pick the right word for each sentence."},
+ flash:{name:"Study Cards",desc:"Look, listen, and learn each word."}
+};
+var app=document.getElementById("app");
+var prog={};
+try{prog=JSON.parse(localStorage.getItem("sort3")||"{}")||{}}catch(e){prog={}}
+function save(){try{localStorage.setItem("sort3",JSON.stringify(prog))}catch(e){}}
+function bump(w,ok){var v=prog[w]||0;prog[w]=ok?Math.min(3,v+1):Math.max(0,v-1);save()}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function stars(n){var s="";for(var i=0;i<3;i++)s+=i<n?"★":"<i>★</i>";return '<span class="stars" aria-label="'+n+' of 3 stars">'+s+"</span>"}
+function speak(t){try{var u=new SpeechSynthesisUtterance(t);u.rate=.85;u.lang="en-US";speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+var G=null;
+
+function home(){
+  G=null;
+  var mastered=WORDS.filter(function(o){return(prog[o.w]||0)>=3}).length;
+  app.innerHTML=
+   '<div class="top"><div><div class="tag">Sort #3 spelling list</div><h1>Spelling Practice</h1></div>'+
+   '<div class="card" style="padding:10px 16px"><b>'+mastered+' of 12</b> words mastered</div></div>'+
+   '<div class="modes">'+Object.keys(MODES).map(function(k){return '<button class="mode" data-m="'+k+'"><strong>'+MODES[k].name+'</strong><span>'+MODES[k].desc+'</span></button>'}).join("")+'</div>'+
+   '<section class="card"><h2>Your words</h2><p class="sentence" style="margin:6px 0 12px">Get a word right on the first try to earn a star. Three stars means mastered. Tap a word to hear it.</p>'+
+   '<div class="words">'+WORDS.map(function(o){return '<button class="w" data-say="'+o.w+'"><b>'+o.w+'</b>'+stars(prog[o.w]||0)+'</button>'}).join("")+'</div>'+
+   '<p class="sentence" style="margin:14px 0 0">The last two, than and then, are the non-negotiables.</p></section>';
+  app.querySelectorAll("[data-m]").forEach(function(b){b.onclick=function(){start(b.dataset.m)}});
+  app.querySelectorAll("[data-say]").forEach(function(b){b.onclick=function(){speak(b.dataset.say)}});
+}
+
+function start(kind){
+  var items=kind==="thenthan"?shuffle(TT).map(function(t){return{t:t}}):shuffle(WORDS).map(function(o){return{o:o}});
+  G={kind:kind,items:items,i:0,right:0,missed:[],redo:false};
+  step();
+}
+function header(){
+  var pct=Math.round(G.i/G.items.length*100);
+  return '<div class="row"><button class="btn ghost" id="quit">Home</button><div class="bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100"><div style="width:'+pct+'%"></div></div><span class="tag">'+Math.min(G.i+1,G.items.length)+' / '+G.items.length+'</span></div>';
+}
+function step(){
+  if(G.i>=G.items.length)return end();
+  var it=G.items[G.i];
+  if(G.kind==="flash")return flash(it.o);
+  app.innerHTML=header()+'<section class="card prompt" id="stage"></section><div id="fb"></div>';
+  document.getElementById("quit").onclick=home;
+  if(G.kind==="listen")listen(it.o);
+  else if(G.kind==="gaps")builder(it.o,true);
+  else if(G.kind==="scramble")builder(it.o,false);
+  else thenthan(it.t);
+}
+function finish(word,ok,first){
+  if(word){bump(word,ok)}
+  if(ok)G.right++;else if(word)G.missed.push(word);
+  G.i++;
+}
+function feedback(ok,word,msg){
+  var fb=document.getElementById("fb");
+  fb.innerHTML='<div class="fb '+(ok?"good":"bad")+'"><span>'+msg+' <span class="word">'+esc(word)+'</span></span><button class="btn" id="nx">'+(G.i>=G.items.length?"See results":"Next")+'</button></div>';
+  var nx=document.getElementById("nx");nx.onclick=step;nx.focus();
+}
+function speakBtn(text,label){return '<button class="btn" data-sp="'+esc(text)+'"><span class="spk">&#128266; '+label+'</span></button>'}
+function wireSpeak(root){root.querySelectorAll("[data-sp]").forEach(function(b){b.onclick=function(){speak(b.dataset.sp)}})}
+
+/* Listen and Spell */
+function listen(o){
+  var st=document.getElementById("stage"),tries=0,hinted=false;
+  st.innerHTML='<div class="tag">Type the word you hear</div><div class="row">'+speakBtn(o.w,"Say the word")+speakBtn(o.x,"Use it in a sentence")+'</div>'+
+   '<input class="type" id="ans" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Type the word" placeholder="'+o.w.length+' letters">'+
+   '<div class="row"><button class="btn" id="chk">Check</button><button class="btn ghost" id="hint">Show first letter</button></div><div id="msg" class="sentence"></div>';
+  wireSpeak(st);speak(o.w);
+  var inp=document.getElementById("ans"),msg=document.getElementById("msg");inp.focus();
+  function check(){
+    var v=inp.value.trim().toLowerCase();if(!v)return;
+    if(v===o.w){inp.disabled=true;var first=tries===0&&!hinted;finish(o.w,first);feedback(true,o.w,first?"Correct on the first try!":"Correct!");}
+    else{tries++;if(tries>=2){inp.disabled=true;finish(o.w,false);
+      var d="";for(var i=0;i<o.w.length;i++){d+=(v[i]===o.w[i])?o.w[i]:'<u>'+o.w[i]+'</u>'}
+      feedback(false,o.w,"The word is");document.querySelector("#fb .word").innerHTML=d;}
+      else{msg.textContent="Not quite. Listen again and try one more time.";inp.classList.add("shake");setTimeout(function(){inp.classList.remove("shake")},400);inp.select();}}
+  }
+  document.getElementById("chk").onclick=check;
+  inp.onkeydown=function(e){if(e.key==="Enter")check()};
+  document.getElementById("hint").onclick=function(){hinted=true;msg.textContent="It starts with "+o.w[0].toUpperCase()+" and has "+o.w.length+" letters. Break it up: "+o.s+"."};
+}
+
+/* Missing Letters and Unscramble share a tile builder */
+function builder(o,gaps){
+  var st=document.getElementById("stage"),word=o.w,L=word.split(""),n=L.length;
+  var missing=[];
+  if(gaps){var cnt=n<=4?1:(n<=8?2:3),pos=shuffle(L.map(function(_,i){return i})).slice(0,cnt);missing=pos}
+  var slots=L.map(function(ch,i){var fixed=gaps&&missing.indexOf(i)<0;return{ch:ch,fixed:fixed,bi:fixed?-2:-1}});
+  var need=gaps?missing.map(function(i){return L[i]}):L.slice();
+  var extras=gaps?shuffle("abcdefghilmnorstuv".split("").filter(function(c){return need.indexOf(c)<0})).slice(0,3):[];
+  var bank=shuffle(need.concat(extras)).map(function(c){return{ch:c,used:false}});
+  if(!gaps&&n>1){var tries=0;while(bank.map(function(b){return b.ch}).join("")===word&&tries++<10)bank=shuffle(bank)}
+  var wrong=false,done=false;
+  function draw(){
+    st.innerHTML='<div class="tag">'+(gaps?"Fill in the missing letters":"Unscramble the letters")+'</div>'+
+     '<div class="row">'+speakBtn(word,"Hear it")+speakBtn(o.x,"Sentence")+'</div><p class="syl" aria-label="Syllables">'+o.s+'</p>'+
+     '<div class="slots" id="slots">'+slots.map(function(s,i){
+        if(s.fixed)return '<div class="slot fixed">'+s.ch+'</div>';
+        if(s.bi>=0)return '<button class="slot filled" data-s="'+i+'" aria-label="Remove letter">'+bank[s.bi].ch+'</button>';
+        return '<div class="slot" aria-label="Empty slot"></div>'}).join("")+'</div>'+
+     '<div class="bank">'+bank.map(function(b,i){return '<button class="tile" data-b="'+i+'"'+(b.used||done?" disabled":"")+'>'+b.ch+'</button>'}).join("")+'</div>'+
+     '<div class="row"><button class="btn ghost" id="clr"'+(done?" disabled":"")+'>Clear</button></div>';
+    wireSpeak(st);
+    st.querySelectorAll("[data-b]").forEach(function(b){b.onclick=function(){place(+b.dataset.b)}});
+    st.querySelectorAll("[data-s]").forEach(function(b){b.onclick=function(){var s=slots[+b.dataset.s];bank[s.bi].used=false;s.bi=-1;draw()}});
+    document.getElementById("clr").onclick=clear;
+  }
+  function clear(){slots.forEach(function(s){if(!s.fixed)s.bi=-1});bank.forEach(function(b){b.used=false});draw()}
+  function place(bi){
+    var s=slots.filter(function(s){return!s.fixed&&s.bi===-1})[0];if(!s)return;
+    s.bi=bi;bank[bi].used=true;
+    var full=slots.every(function(s){return s.fixed||s.bi>=0});
+    if(!full)return draw();
+    var built=slots.map(function(s){return s.fixed?s.ch:bank[s.bi].ch}).join("");
+    if(built===word){done=true;draw();var first=!wrong;finish(word,first);feedback(true,word,first?"Correct on the first try!":"Correct!");}
+    else{wrong=true;draw();var sl=document.getElementById("slots");sl.classList.add("shake");
+      var fb=document.getElementById("fb");fb.innerHTML='<div class="fb info">Not quite. Check the order and try again.</div>';
+      setTimeout(function(){sl.classList.remove("shake");clear()},650);}
+  }
+  draw();speak(word);
+}
+
+/* Than or Then */
+function thenthan(t){
+  var st=document.getElementById("stage"),parts=t[0].split("___"),tried=false;
+  st.innerHTML='<div class="tag">Which word fits?</div><p class="big" style="font-size:clamp(1.4rem,5vw,2rem);letter-spacing:0">'+esc(parts[0])+'<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>'+esc(parts[1])+'</p>'+
+   '<div class="choices"><button class="btn" data-c="than">than</button><button class="btn" data-c="then">then</button></div>'+
+   '<p class="sentence"><b>than</b> compares two things. <b>then</b> tells what happens next.</p>';
+  st.querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){
+    if(b.dataset.c===t[1]){st.querySelectorAll("[data-c]").forEach(function(x){x.disabled=true});
+      finish(t[1],!tried);if(!tried)G.right;feedback(true,t[1],tried?"Correct!":"Correct on the first try!");
+      document.querySelector("#fb .word").textContent=t[1];}
+    else{tried=true;b.disabled=true;document.getElementById("fb").innerHTML='<div class="fb info">Not that one. Try the other word.</div>';}}});
+}
+
+/* Study cards */
+function flash(o){
+  app.innerHTML=header()+'<section class="card prompt"><div class="tag">Study card</div><div class="big">'+o.w+'</div><div class="syl">'+o.s+'</div>'+
+   '<p class="sentence">'+esc(o.x)+'</p><div class="row">'+speakBtn(o.w,"Say the word")+speakBtn(o.w.split("").join(", "),"Spell it out loud")+speakBtn(o.x,"Sentence")+'</div></section>'+
+   '<div class="row"><button class="btn ghost" id="pv"'+(G.i===0?" disabled":"")+'>Back</button><button class="btn" id="nx">'+(G.i>=G.items.length-1?"Finish":"Next word")+'</button></div>';
+  document.getElementById("quit").onclick=home;wireSpeak(app);speak(o.w);
+  document.getElementById("pv").onclick=function(){G.i=Math.max(0,G.i-1);step()};
+  document.getElementById("nx").onclick=function(){G.i++;step()};
+}
+
+function end(){
+  if(G.kind==="flash"){
+    app.innerHTML='<section class="card prompt"><h2>Nice studying!</h2><p class="sentence">Now test yourself. Try Listen and Spell next.</p><div class="row"><button class="btn" id="go">Listen and Spell</button><button class="btn ghost" id="hm">Home</button></div></section>';
+    document.getElementById("go").onclick=function(){start("listen")};document.getElementById("hm").onclick=home;return;
+  }
+  var n=G.items.length,r=G.right,msg=r===n?"Perfect round!":r>=n*.8?"Great work!":r>=n*.5?"Good effort. Keep going!":"Keep practicing. You will get there!";
+  var uniq=G.missed.filter(function(w,i){return G.missed.indexOf(w)===i});
+  app.innerHTML='<section class="card prompt"><div class="tag">Round complete</div><div class="score">'+r+' / '+n+'</div><h2>'+msg+'</h2>'+
+   '<p class="sentence">Right on the first try: <span class="hit">'+r+'</span>'+(uniq.length?'<br>Practice these again: <span class="miss">'+uniq.join(", ")+'</span>':'')+'</p>'+
+   '<div class="row"><button class="btn" id="again">Play again</button>'+(uniq.length&&G.kind!=="thenthan"?'<button class="btn ghost" id="fix">Practice missed words</button>':'')+'<button class="btn ghost" id="hm">Home</button></div></section>';
+  var kind=G.kind,missed=uniq;
+  document.getElementById("again").onclick=function(){start(kind)};
+  var fx=document.getElementById("fix");
+  if(fx)fx.onclick=function(){G={kind:kind,items:shuffle(missed).map(function(w){return{o:WORDS.filter(function(o){return o.w===w})[0]}}),i:0,right:0,missed:[]};step()};
+  document.getElementById("hm").onclick=home;
+}
+home();
+</script>
+
+</body>
+</html>

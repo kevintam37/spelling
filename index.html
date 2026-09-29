@@ -185,7 +185,7 @@ function listen(o){
   }
   document.getElementById("chk").onclick=check;
   inp.onkeydown=function(e){if(e.key==="Enter")check()};
-  document.getElementById("hint").onclick=function(){hinted=true;msg.textContent="It starts with "+o.w[0].toUpperCase()+" and has "+o.w.length+" letters. Break it up: "+o.s+"."};
+  document.getElementById("hint").onclick=function(){hinted=true;msg.textContent="It starts with "+o.w[0].toUpperCase()+" and has "+o.w.length+" letters."};
 }
 
 /* Missing Letters and Unscramble share a tile builder */
@@ -201,7 +201,7 @@ function builder(o,gaps){
   var wrong=false,done=false;
   function draw(){
     st.innerHTML='<div class="tag">'+(gaps?"Fill in the missing letters":"Unscramble the letters")+'</div>'+
-     '<div class="row">'+speakBtn(word,"Hear it")+speakBtn(o.x,"Sentence")+'</div><p class="syl" aria-label="Syllables">'+o.s+'</p>'+
+     '<div class="row">'+speakBtn(word,"Hear it")+speakBtn(o.x,"Sentence")+'</div>'+
      '<div class="slots" id="slots">'+slots.map(function(s,i){
         if(s.fixed)return '<div class="slot fixed">'+s.ch+'</div>';
         if(s.bi>=0)return '<button class="slot filled" data-s="'+i+'" aria-label="Remove letter">'+bank[s.bi].ch+'</button>';
